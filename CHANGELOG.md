@@ -1,3 +1,7 @@
+## 0.4.7
+
+- update libsql
+
 ## 0.4.6
 
 - prevent multiple client creations during hot restart

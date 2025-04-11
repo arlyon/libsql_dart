@@ -13,9 +13,9 @@ pub struct LibsqlParams {
     pub named: Option<HashMap<String, LibsqlValue>>,
 }
 
-impl Into<libsql::params::Params> for LibsqlParams {
-    fn into(self) -> libsql::params::Params {
-        let positional_params = self
+impl From<LibsqlParams> for libsql::params::Params {
+    fn from(val: LibsqlParams) -> Self {
+        let positional_params = val
             .positional
             .as_ref()
             .map(|params| {
@@ -30,9 +30,9 @@ impl Into<libsql::params::Params> for LibsqlParams {
                     })
                     .collect::<Vec<_>>()
             })
-            .unwrap_or_else(Vec::new);
+            .unwrap_or_default();
 
-        let named_params = self
+        let named_params = val
             .named
             .as_ref()
             .map(|params| {
@@ -47,7 +47,7 @@ impl Into<libsql::params::Params> for LibsqlParams {
                     })
                     .collect::<Vec<_>>()
             })
-            .unwrap_or_else(Vec::new);
+            .unwrap_or_default();
 
         match (positional_params.is_empty(), named_params.is_empty()) {
             (false, true) => libsql::params::Params::Positional(positional_params),

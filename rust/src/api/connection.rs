@@ -18,8 +18,8 @@ pub struct LibsqlConnection {
 
 impl LibsqlConnection {
     pub async fn sync(&self) -> SyncResult {
-        let guard = DATABASE_REGISTRY.lock().await;
-        let (db, _) = guard.get(&self.db_id).unwrap();
+        let guard = DATABASE_REGISTRY.get_or_init(Default::default).lock().await;
+        let (db, _) = guard.get(&self.db_id).expect("db exists");
         db.sync().await.unwrap();
         SyncResult {}
     }
@@ -33,11 +33,12 @@ impl LibsqlConnection {
     }
 
     pub async fn prepare(&self, sql: String) -> PrepareResult {
-        let guard = DATABASE_REGISTRY.lock().await;
-        let (_, conn) = guard.get(&self.db_id).unwrap();
+        let guard = DATABASE_REGISTRY.get_or_init(Default::default).lock().await;
+        let (_, conn) = guard.get(&self.db_id).expect("db exists");
         let statement = conn.prepare(&sql).await.unwrap();
         let statement_id = Uuid::new_v4().to_string();
         STATEMENT_REGISTRY
+            .get_or_init(Default::default)
             .lock()
             .await
             .insert(statement_id.clone(), statement);
@@ -47,8 +48,8 @@ impl LibsqlConnection {
     }
 
     pub async fn batch(&self, sql: String) -> BatchResult {
-        let guard = DATABASE_REGISTRY.lock().await;
-        let (_, conn) = guard.get(&self.db_id).unwrap();
+        let guard = DATABASE_REGISTRY.get_or_init(Default::default).lock().await;
+        let (_, conn) = guard.get(&self.db_id).expect("db exists");
         conn.execute_batch(&sql).await.unwrap();
         BatchResult {}
     }
@@ -65,11 +66,12 @@ impl LibsqlConnection {
             _ => TransactionBehavior::Deferred,
         };
 
-        let guard = DATABASE_REGISTRY.lock().await;
-        let (_, conn) = guard.get(&self.db_id).unwrap();
+        let guard = DATABASE_REGISTRY.get_or_init(Default::default).lock().await;
+        let (_, conn) = guard.get(&self.db_id).expect("db exists");
         let transaction = conn.transaction_with_behavior(behavior_).await.unwrap();
         let transaction_id = Uuid::new_v4().to_string();
         TRANSACTION_REGISTRY
+            .get_or_init(Default::default)
             .lock()
             .await
             .insert(transaction_id.clone(), transaction);
@@ -79,6 +81,13 @@ impl LibsqlConnection {
     }
 
     pub async fn close(&self) {
-        DATABASE_REGISTRY.lock().await.remove(&self.db_id).unwrap();
+        if let None = DATABASE_REGISTRY
+            .get_or_init(Default::default)
+            .lock()
+            .await
+            .remove(&self.db_id)
+        {
+            log::warn!("database {:?} did not exist when closing", self.db_id)
+        }
     }
 }

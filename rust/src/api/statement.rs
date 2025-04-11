@@ -12,6 +12,7 @@ pub struct LibsqlStatement {
 impl LibsqlStatement {
     pub async fn finalize(&self) {
         STATEMENT_REGISTRY
+            .get_or_init(Default::default)
             .lock()
             .await
             .remove(&self.statement_id)
@@ -21,6 +22,7 @@ impl LibsqlStatement {
 
     pub async fn reset(&self) {
         STATEMENT_REGISTRY
+            .get_or_init(Default::default)
             .lock()
             .await
             .remove(&self.statement_id)
@@ -36,6 +38,7 @@ impl LibsqlStatement {
             })
             .into();
         let result = STATEMENT_REGISTRY
+            .get_or_init(Default::default)
             .lock()
             .await
             .remove(&self.statement_id)
@@ -54,6 +57,7 @@ impl LibsqlStatement {
             })
             .into();
         let rows_affected = STATEMENT_REGISTRY
+            .get_or_init(Default::default)
             .lock()
             .await
             .remove(&self.statement_id)

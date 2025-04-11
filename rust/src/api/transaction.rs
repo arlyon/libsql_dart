@@ -18,6 +18,7 @@ impl LibsqlTransaction {
             })
             .into();
         let result = TRANSACTION_REGISTRY
+            .get_or_init(Default::default)
             .lock()
             .await
             .get(&self.transaction_id)
@@ -36,6 +37,7 @@ impl LibsqlTransaction {
             })
             .into();
         let rows_affected = TRANSACTION_REGISTRY
+            .get_or_init(Default::default)
             .lock()
             .await
             .get(&self.transaction_id)
@@ -48,6 +50,7 @@ impl LibsqlTransaction {
 
     pub async fn commit(&self) -> TransactionCommitResult {
         let transaction = TRANSACTION_REGISTRY
+            .get_or_init(Default::default)
             .lock()
             .await
             .remove(&self.transaction_id)
@@ -58,6 +61,7 @@ impl LibsqlTransaction {
 
     pub async fn rollback(&self) -> TransactionRollbackResult {
         let transaction = TRANSACTION_REGISTRY
+            .get_or_init(Default::default)
             .lock()
             .await
             .remove(&self.transaction_id)

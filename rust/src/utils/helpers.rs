@@ -8,7 +8,7 @@ pub async fn rows_to_query_result(mut result: Rows) -> QueryResult {
     let mut rows: Vec<HashMap<String, LibsqlReturnValue>> = Vec::new();
     while let Ok(Some(result_row)) = result.next().await {
         let mut row = HashMap::new();
-        for idx in 0..result_row.column_count() as i32 {
+        for idx in 0..result_row.column_count() {
             let column_name = result_row.column_name(idx).unwrap();
             let value = result_row.get_value(idx).unwrap().into();
             row.insert(column_name.to_string(), value);
@@ -16,7 +16,7 @@ pub async fn rows_to_query_result(mut result: Rows) -> QueryResult {
         rows.push(row);
     }
     let mut columns: Vec<String> = Vec::new();
-    for idx in 0..result.column_count() as i32 {
+    for idx in 0..result.column_count() {
         columns.push(result.column_name(idx).unwrap().to_string());
     }
     QueryResult {

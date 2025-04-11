@@ -1,6 +1,6 @@
 name: libsql_dart
 description: "LibSQL Dart client library to interact with LibSQL/Turso database instance."
-version: 0.4.6
+version: 0.4.7
 homepage:
 repository: https://github.com/dikatok/libsql_dart
 issue_tracker: https://github.com/dikatok/libsql_dart/issues
@@ -12,7 +12,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_rust_bridge: 2.3.0
+  flutter_rust_bridge: 2.9.0
   freezed_annotation: ^2.4.4
   plugin_platform_interface: ^2.0.2
 
@@ -26,6 +26,7 @@ dev_dependencies:
     sdk: flutter
   freezed: ^2.5.7
   build_runner: ^2.4.12
+  test: ^1.25.15
 
 flutter:
   plugin:
